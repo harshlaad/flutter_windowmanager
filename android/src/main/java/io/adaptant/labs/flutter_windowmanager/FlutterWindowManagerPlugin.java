@@ -34,29 +34,31 @@ public class FlutterWindowManagerPlugin implements FlutterPlugin, MethodCallHand
   }
 
   @Override
-  public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("addFlags")) {
-      if (activity != null) {
-        int flag = call.argument("flag");
-        Window window = activity.getWindow();
-        window.addFlags(flag);
-        result.success(null);
-      } else {
-        result.error("NO_ACTIVITY", "Plugin not attached to an activity", null);
-      }
-    } else if (call.method.equals("clearFlags")) {
-      if (activity != null) {
-        int flag = call.argument("flag");
-        Window window = activity.getWindow();
-        window.clearFlags(flag);
-        result.success(null);
-      } else {
-        result.error("NO_ACTIVITY", "Plugin not attached to an activity", null);
-      }
-    } else {
-      result.notImplemented();
-    }
+public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+  if (activity == null) {
+    result.error("NO_ACTIVITY", "Plugin not attached to an activity", null);
+    return;
   }
+
+  Integer flag = call.argument("flag");
+  if (flag == null) {
+    result.error("INVALID_ARGUMENT", "'flag' argument is required and must be an integer.", null);
+    return;
+  }
+
+  Window window = activity.getWindow();
+
+  if (call.method.equals("addFlags")) {
+    window.addFlags(flag);
+    result.success(null);
+  } else if (call.method.equals("clearFlags")) {
+    window.clearFlags(flag);
+    result.success(null);
+  } else {
+    result.notImplemented();
+  }
+}
+
 
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
